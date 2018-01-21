@@ -60,6 +60,17 @@
 		stdout-path = "serial0:115200n8";
 	};
 
+	reg_gmac_3v3: gmac-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "gmac-3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		startup-delay-us = <100000>;
+		enable-active-high;
+		gpio = <&pio 3 14 GPIO_ACTIVE_HIGH>;
+	};
+
+
 	reg_usb1_vbus: usb1-vbus {
 		compatible = "regulator-fixed";
 		regulator-name = "usb1-vbus";
@@ -95,7 +106,7 @@
 	pinctrl-0 = <&rgmii_pins>;
 	phy-mode = "rgmii";
 	phy-handle = <&ext_rgmii_phy>;
-	phy-supply = <&reg_dc1sw>;
+	phy-supply = <&reg_gmac_3v3>;
 	status = "okay";
 };
 
@@ -114,10 +125,10 @@
 	bias-pull-up;
 };
 
-&external_mdio {
+&mdio {
 	ext_rgmii_phy: ethernet-phy@1 {
 		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
+		reg = <0>;
 	};
 };
 
