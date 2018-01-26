@@ -42,13 +42,18 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <dt-bindings/clock/sun8i-de2.h>
 #include <dt-bindings/clock/sun50i-a64-ccu.h>
 #include <dt-bindings/clock/sun8i-de2.h>
 #include <dt-bindings/clock/sun8i-r-ccu.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
-#include <dt-bindings/reset/sun50i-a64-ccu.h>
 #include <dt-bindings/reset/sun8i-de2.h>
+#include <dt-bindings/reset/sun50i-a64-ccu.h>
+#include <dt-bindings/clock/sun8i-de2.h>
+#include <dt-bindings/reset/sun8i-de2.h>
+#include <dt-bindings/clock/sun8i-r-ccu.h>
 #include <dt-bindings/reset/sun8i-r-ccu.h>
+#include <dt-bindings/thermal/thermal.h>
 
 / {
 	interrupt-parent = <&gic>;
@@ -65,7 +70,9 @@
 				     "simple-framebuffer";
 			allwinner,pipeline = "mixer0-lcd0";
 			clocks = <&ccu CLK_TCON0>,
-				 <&display_clocks CLK_MIXER0>;
+				 <&display_clocks CLK_MIXER0>,
+				 <&display_clocks CLK_BUS_MIXER0>,
+				 <&ccu CLK_BUS_TCON0>;
 			status = "disabled";
 		};
 
@@ -74,8 +81,69 @@
 				     "simple-framebuffer";
 			allwinner,pipeline = "mixer1-lcd1-hdmi";
 			clocks = <&display_clocks CLK_MIXER1>,
-				 <&ccu CLK_TCON1>, <&ccu CLK_HDMI>;
+				 <&ccu CLK_TCON1>, <&ccu CLK_HDMI>,
+				 <&ccu CLK_BUS_HDMI>,
+				 <&ccu CLK_HDMI_DDC>;
 			status = "disabled";
+		};
+	};
+
+	cpu_opp_table: opp_table {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp@408000000 {
+			opp-hz = /bits/ 64 <408000000>;
+			opp-microvolt = <1000000 1000000 1300000>;
+			clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@648000000 {
+			opp-hz = /bits/ 64 <648000000>;
+			opp-microvolt = <1040000 1040000 1300000>;
+			clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@816000000 {
+			opp-hz = /bits/ 64 <816000000>;
+			opp-microvolt = <1080000 1080000 1300000>;
+			clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@912000000 {
+		       opp-hz = /bits/ 64 <912000000>;
+		       opp-microvolt = <1120000 1120000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@960000000 {
+		       opp-hz = /bits/ 64 <960000000>;
+		       opp-microvolt = <1160000 1160000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@1008000000 {
+		       opp-hz = /bits/ 64 <1008000000>;
+		       opp-microvolt = <1200000 1200000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@1056000000 {
+		       opp-hz = /bits/ 64 <1056000000>;
+		       opp-microvolt = <1240000 1240000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@1104000000 {
+		       opp-hz = /bits/ 64 <1104000000>;
+		       opp-microvolt = <1260000 1260000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
+		};
+
+		opp@1152000000 {
+		       opp-hz = /bits/ 64 <1152000000>;
+		       opp-microvolt = <1300000 1300000 1300000>;
+		       clock-latency-ns = <244144>; /* 8 32k periods */
 		};
 	};
 
@@ -89,6 +157,9 @@
 			reg = <0>;
 			enable-method = "psci";
 			next-level-cache = <&L2>;
+			operating-points-v2 = <&cpu_opp_table>;
+			cpu-supply = <&reg_cpu_fallback>;
+			#cooling-cells = <2>;
 		};
 
 		cpu1: cpu@1 {
@@ -97,6 +168,7 @@
 			reg = <1>;
 			enable-method = "psci";
 			next-level-cache = <&L2>;
+			operating-points-v2 = <&cpu_opp_table>;
 		};
 
 		cpu2: cpu@2 {
@@ -105,6 +177,7 @@
 			reg = <2>;
 			enable-method = "psci";
 			next-level-cache = <&L2>;
+			operating-points-v2 = <&cpu_opp_table>;
 		};
 
 		cpu3: cpu@3 {
@@ -113,6 +186,7 @@
 			reg = <3>;
 			enable-method = "psci";
 			next-level-cache = <&L2>;
+			operating-points-v2 = <&cpu_opp_table>;
 		};
 
 		L2: l2-cache {
@@ -189,6 +263,101 @@
 		compatible = "linux,spdif-dit";
 	};
 
+	thermal-zones {
+		cpu-thermal {
+			/* milliseconds */
+			polling-delay-passive = <250>;
+			polling-delay = <1000>;
+			thermal-sensors = <&ths>;
+
+			trips {
+				cpu_warm: cpu_warm {
+					temperature = <65000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_hot_pre: cpu_hot_pre {
+					temperature = <70000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_hot: cpu_hot {
+					temperature = <75000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_very_hot_pre: cpu_very_hot_pre {
+					temperature = <85000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_very_hot: cpu_very_hot {
+					temperature = <90000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_crit: cpu_crit {
+					temperature = <105000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				cpu_warm_limit_cpu {
+					trip = <&cpu_warm>;
+					cooling-device = <&cpu0 THERMAL_NO_LIMIT 2>;
+				};
+
+				cpu_hot_pre_limit_cpu {
+					trip = <&cpu_hot_pre>;
+					cooling-device = <&cpu0 2 3>;
+				};
+
+				cpu_hot_limit_cpu {
+					trip = <&cpu_hot>;
+					cooling-device = <&cpu0 3 4>;
+				};
+
+				cpu_very_hot_pre_limit_cpu {
+					trip = <&cpu_very_hot>;
+					cooling-device = <&cpu0 5 6>;
+				};
+
+				cpu_very_hot_limit_cpu {
+					trip = <&cpu_very_hot>;
+					cooling-device = <&cpu0 7 THERMAL_NO_LIMIT>;
+				};
+			};
+		};
+	};
+
+	reg_cpu_fallback: reg_cpu_fallback  {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd-cpux-dummy";
+		regulator-min-microvolt = <1100000>;
+		regulator-max-microvolt = <1100000>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		cma: linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x4000000>;
+			alignment = <0x2000>;
+			linux,cma-default;
+		};
+	};
+
 	timer {
 		compatible = "arm,armv8-timer";
 		interrupts = <GIC_PPI 13
@@ -243,8 +412,12 @@
 					mixer0_out: port@1 {
 						reg = <1>;
 
-						mixer0_out_tcon0: endpoint {
+						mixer0_out_tcon0: endpoint@0 {
 							remote-endpoint = <&tcon0_in_mixer0>;
+						};
+
+						mixer0_out_tcon1: endpoint@1 {
+							remote-endpoint = <&tcon1_in_mixer0>;
 						};
 					};
 				};
@@ -266,9 +439,109 @@
 					mixer1_out: port@1 {
 						reg = <1>;
 
-						mixer1_out_tcon1: endpoint {
+						mixer1_out_tcon0: endpoint@0 {
+							remote-endpoint = <&tcon0_in_mixer1>;
+						};
+
+						mixer1_out_tcon1: endpoint@1 {
 							remote-endpoint = <&tcon1_in_mixer1>;
 						};
+					};
+				};
+			};
+		};
+
+		ths: thermal-sensor@1c25000 {
+			compatible = "allwinner,sun50i-h5-ths";
+			reg = <0x01c25000 0x100>;
+			clocks = <&ccu CLK_BUS_THS>, <&ccu CLK_THS>;
+			clock-names = "bus", "mod";
+			resets = <&ccu RST_BUS_THS>;
+			#thermal-sensor-cells = <0>;
+			#io-channel-cells = <0>;
+		};
+
+		tcon0: lcd-controller@01c0c000 {
+			compatible = "allwinner,sun50i-a64-tcon0";
+			reg = <0x01c0c000 0x1000>;
+			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_TCON0>,
+				 <&ccu CLK_TCON0>;
+			clock-names = "ahb",
+				      "tcon-ch0";
+			clock-output-names = "tcon-pixel-clock";
+			resets = <&ccu RST_BUS_TCON0>;
+			reset-names = "lcd";
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				tcon0_in: port@0 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0>;
+
+					tcon0_in_mixer0: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&mixer0_out_tcon0>;
+					};
+
+					tcon0_in_mixer1: endpoint@1 {
+						reg = <1>;
+						remote-endpoint = <&mixer1_out_tcon0>;
+					};
+				};
+
+				tcon0_out: port@1 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <1>;
+				};
+			};
+		};
+
+		tcon1: lcd-controller@1c0d000 {
+			compatible = "allwinner,sun50i-a64-tcon1";
+			reg = <0x01c0d000 0x1000>;
+			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&ccu CLK_BUS_TCON1>,
+				 <&ccu CLK_TCON1>;
+			clock-names = "ahb",
+				      "tcon-ch1";
+			resets = <&ccu RST_BUS_TCON1>;
+			reset-names = "lcd";
+			status = "disabled";
+
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				tcon1_in: port@0 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <0>;
+
+					tcon1_in_mixer1: endpoint@0 {
+						reg = <0>;
+						remote-endpoint = <&mixer1_out_tcon1>;
+					};
+
+					tcon1_in_mixer0: endpoint@1 {
+						reg = <1>;
+						remote-endpoint = <&mixer0_out_tcon1>;
+					};
+				};
+
+				tcon1_out: port@1 {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					reg = <1>;
+
+					tcon1_out_hdmi: endpoint@1 {
+						reg = <1>;
+						remote-endpoint = <&hdmi_in_tcon1>;
 					};
 				};
 			};
@@ -318,75 +591,6 @@
 			dma-requests = <27>;
 			resets = <&ccu RST_BUS_DMA>;
 			#dma-cells = <1>;
-		};
-
-		tcon0: lcd-controller@1c0c000 {
-			compatible = "allwinner,sun50i-a64-tcon-lcd",
-				     "allwinner,sun8i-a83t-tcon-lcd";
-			reg = <0x01c0c000 0x1000>;
-			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&ccu CLK_BUS_TCON0>, <&ccu CLK_TCON0>;
-			clock-names = "ahb", "tcon-ch0";
-			clock-output-names = "tcon-pixel-clock";
-			resets = <&ccu RST_BUS_TCON0>, <&ccu RST_BUS_LVDS>;
-			reset-names = "lcd", "lvds";
-
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				tcon0_in: port@0 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <0>;
-
-					tcon0_in_mixer0: endpoint@0 {
-						reg = <0>;
-						remote-endpoint = <&mixer0_out_tcon0>;
-					};
-				};
-
-				tcon0_out: port@1 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <1>;
-				};
-			};
-		};
-
-		tcon1: lcd-controller@1c0d000 {
-			compatible = "allwinner,sun50i-a64-tcon-tv",
-				     "allwinner,sun8i-a83t-tcon-tv";
-			reg = <0x01c0d000 0x1000>;
-			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&ccu CLK_BUS_TCON1>, <&ccu CLK_TCON1>;
-			clock-names = "ahb", "tcon-ch1";
-			resets = <&ccu RST_BUS_TCON1>;
-			reset-names = "lcd";
-
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-
-				tcon1_in: port@0 {
-					reg = <0>;
-
-					tcon1_in_mixer1: endpoint {
-						remote-endpoint = <&mixer1_out_tcon1>;
-					};
-				};
-
-				tcon1_out: port@1 {
-					#address-cells = <1>;
-					#size-cells = <0>;
-					reg = <1>;
-
-					tcon1_out_hdmi: endpoint@1 {
-						reg = <1>;
-						remote-endpoint = <&hdmi_in_tcon1>;
-					};
-				};
-			};
 		};
 
 		video-codec@1c0e000 {
@@ -557,6 +761,15 @@
 			i2c1_pins: i2c1_pins {
 				pins = "PH2", "PH3";
 				function = "i2c1";
+			};
+
+			lcd_rgb666_pins: lcd-rgb666 {
+				pins = "PD0", "PD1", "PD2", "PD3", "PD4",
+				       "PD5", "PD6", "PD7", "PD8", "PD9",
+				       "PD10", "PD11", "PD12", "PD13",
+				       "PD14", "PD15", "PD16", "PD17",
+				       "PD18", "PD19", "PD20", "PD21";
+				function = "lcd0";
 			};
 
 			mmc0_pins: mmc0-pins {
@@ -818,7 +1031,6 @@
 			#size-cells = <0>;
 		};
 
-
 		spi0: spi@1c68000 {
 			compatible = "allwinner,sun8i-h3-spi";
 			reg = <0x01c68000 0x1000>;
@@ -870,6 +1082,34 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 			};
+
+			mdio-mux {
+				compatible = "allwinner,sun8i-h3-mdio-mux";
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				mdio-parent-bus = <&mdio>;
+				/* Only one MDIO is usable at the time */
+				internal_mdio: mdio@1 {
+					compatible = "allwinner,sun50i-a64-emac";
+ 					reg = <1>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					int_mii_phy: ethernet-phy@1 {
+						compatible = "ethernet-phy-ieee802.3-c22";
+						reg = <1>;
+						clocks = <&ccu CLK_BUS_EMAC>;
+						resets = <&ccu RST_BUS_EMAC>;
+					};
+				};
+
+				external_mdio: mdio@2 {
+					reg = <2>;
+					#address-cells = <1>;
+					#size-cells = <0>;
+ 				};
+ 			};
 		};
 
 		mali: gpu@1c40000 {
@@ -1042,6 +1282,11 @@
 			r_rsb_pins: rsb {
 				pins = "PL0", "PL1";
 				function = "s_rsb";
+			};
+
+			r_i2c_pins_a: i2c-a {
+				pins = "PL8", "PL9";
+				function = "s_i2c";
 			};
 		};
 

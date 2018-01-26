@@ -51,7 +51,8 @@
 
 	ac_power_supply: ac-power-supply {
 		compatible = "x-powers,axp803-ac-power-supply",
-			     "x-powers,axp813-ac-power-supply";
+			     "x-powers,axp813-ac-power-supply",
+			     "x-powers,axp221-ac-power-supply";
 		status = "disabled";
 	};
 
@@ -184,5 +185,10 @@
 			regulator-name = "drivevbus";
 			status = "disabled";
 		};
+	};
+
+	usb_power_supply: usb_power_supply {
+		compatible = "x-powers,axp803-usb-power-supply";
+		status = "disabled";
 	};
 };

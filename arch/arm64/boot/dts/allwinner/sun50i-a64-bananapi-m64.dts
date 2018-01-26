@@ -161,6 +161,10 @@
 	};
 };
 
+&mixer1 {
+	status = "okay";
+};
+
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins>;
@@ -233,6 +237,12 @@
 	regulator-name = "afvcc-csi";
 };
 
+&reg_aldo1 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+	regulator-name = "vcc-csi";
+};
+
 &reg_aldo2 {
 	regulator-always-on;
 	regulator-min-microvolt = <1800000>;
@@ -242,8 +252,8 @@
 
 &reg_aldo3 {
 	regulator-always-on;
-	regulator-min-microvolt = <3000000>;
-	regulator-max-microvolt = <3000000>;
+	regulator-min-microvolt = <2700000>;
+	regulator-max-microvolt = <3300000>;
 	regulator-name = "vcc-pll-avcc";
 };
 
@@ -298,6 +308,12 @@
 	regulator-name = "vcc-wifi";
 };
 
+&reg_dldo3 {
+	regulator-min-microvolt = <3300000>;
+	regulator-max-microvolt = <3300000>;
+	regulator-name = "avdd-csi";
+};
+
 &reg_dldo4 {
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <3300000>;
@@ -313,6 +329,12 @@
 	regulator-min-microvolt = <1800000>;
 	regulator-max-microvolt = <1800000>;
 	regulator-name = "cpvdd";
+};
+
+&reg_eldo3 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	regulator-name = "vdd-1v8-csi";
 };
 
 &reg_fldo1 {
@@ -355,6 +377,10 @@
 			"MIC2", "Microphone Jack",
 			"Onboard Microphone", "MBIAS",
 			"MIC1", "Onboard Microphone";
+};
+
+&tcon1 {
+	status = "okay";
 };
 
 &uart0 {
