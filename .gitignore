@@ -15,6 +15,8 @@
 *.bz2
 *.c.[012]*.*
 *.dtb
+*.dtbo
+*.scr
 *.dtb.S
 *.dwo
 *.elf
