@@ -2,6 +2,7 @@
 dtbo-$(CONFIG_ARCH_SUNXI) += \
 	sun50i-a64-i2c0.dtbo \
 	sun50i-a64-i2c1.dtbo \
+	sun50i-a64-i2c-rtc-ds3231.dtbo \
 	sun50i-a64-pps-gpio.dtbo \
 	sun50i-a64-spi-add-cs1.dtbo \
 	sun50i-a64-spi-jedec-nor.dtbo \
