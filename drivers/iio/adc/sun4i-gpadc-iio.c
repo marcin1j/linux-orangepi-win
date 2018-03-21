@@ -600,8 +600,8 @@ static const struct gpadc_data sun8i_h3_gpadc_data = {
 
 static const struct gpadc_data sun50i_a64_gpadc_data = {
 	.temp_offset = -2170,
-	.temp_scale = -1000,
-	.temp_divider = 8560,
+	.temp_scale = -100000,
+	.temp_divider = 856,
 	.temp_data = SUN8I_H3_GPADC_TEMP_DATA,
 	.sample_start = sun8i_h3_gpadc_sample_start,
 	.sample_end = sun8i_h3_gpadc_sample_end,
