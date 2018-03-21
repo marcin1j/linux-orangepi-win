@@ -89,6 +89,12 @@
 	};
 };
 
+&cpu0 {
+       cpu-supply = <&reg_dcdc2>;
+       clocks = <&ccu CLK_CPUX>;
+       clock-names = "cpu";
+};
+
 &ehci0 {
 	status = "okay";
 };
