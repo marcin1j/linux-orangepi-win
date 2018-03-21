@@ -352,7 +352,7 @@
 		ranges;
 
 		ths: thermal-sensor@1c25000 {
-			compatible = "allwinner,sun50i-h5-ths";
+			compatible = "allwinner,sun50i-a64-ths";
 			reg = <0x01c25000 0x100>;
 			clocks = <&ccu CLK_BUS_THS>, <&ccu CLK_THS>;
 			clock-names = "bus", "mod";
