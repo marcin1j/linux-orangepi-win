@@ -142,6 +142,10 @@
 	};
 };
 
+&i2s2 {
+	status = "okay";
+};
+
 &mixer0 {
 	status = "okay";
 };
@@ -412,6 +416,10 @@
 			"MIC1", "Internal Microphone Left",
 			"Internal Microphone Right", "HBIAS",
 			"MIC2", "Internal Microphone Right";
+};
+
+&sound_hdmi {
+	status = "okay";
 };
 
 &tcon0 {
