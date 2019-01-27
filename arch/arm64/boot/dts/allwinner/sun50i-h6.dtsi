@@ -48,6 +48,12 @@
 			reg = <3>;
 			enable-method = "psci";
 		};
+		
+		opp-1800000000 {
+                       opp-hz = /bits/ 64 <1800000000>;
+                       opp-microvolt = <1160000>;
+                       clock-latency-ns = <244144>; /* 8 32k periods */
+               };
 	};
 
 	de: display-engine {
