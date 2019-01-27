@@ -197,6 +197,12 @@
 	status = "okay";
 };
 
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart3_pins>;
+	status = "disabled";
+};
+
 &usb2otg {
 	dr_mode = "otg";
 	status = "okay";
