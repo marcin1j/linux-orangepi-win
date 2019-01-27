@@ -41,6 +41,7 @@
  */
 
 #include <arm/sunxi-h3-h5.dtsi>
+#include <dt-bindings/thermal/thermal.h>
 
 / {
 	cpus {
@@ -52,6 +53,7 @@
 			device_type = "cpu";
 			reg = <0>;
 			enable-method = "psci";
+			#cooling-cells = <2>;
 		};
 
 		cpu@1 {
@@ -87,6 +89,71 @@
 			polling-delay-passive = <250>;
 			polling-delay = <1000>;
 			thermal-sensors = <&ths 0>;
+
+			trips {
+				cpu_warm: cpu_warm {
+					temperature = <75000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_hot_pre: cpu_hot_pre {
+					temperature = <80000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_hot: cpu_hot {
+					temperature = <85000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_very_hot_pre: cpu_very_hot_pre {
+					temperature = <90000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_very_hot: cpu_very_hot {
+					temperature = <95000>;
+					hysteresis = <2000>;
+					type = "passive";
+				};
+
+				cpu_crit: cpu_crit {
+					temperature = <105000>;
+					hysteresis = <2000>;
+					type = "critical";
+				};
+			};
+
+			cooling-maps {
+				cpu_warm_limit_cpu {
+					trip = <&cpu_warm>;
+					cooling-device = <&cpu0 THERMAL_NO_LIMIT 2>;
+				};
+
+				cpu_hot_pre_limit_cpu {
+					trip = <&cpu_hot_pre>;
+					cooling-device = <&cpu0 2 3>;
+				};
+
+				cpu_hot_limit_cpu {
+					trip = <&cpu_hot>;
+					cooling-device = <&cpu0 3 4>;
+				};
+
+				cpu_very_hot_pre_limit_cpu {
+					trip = <&cpu_very_hot>;
+					cooling-device = <&cpu0 5 6>;
+				};
+
+				cpu_very_hot_limit_cpu {
+					trip = <&cpu_very_hot>;
+					cooling-device = <&cpu0 7 THERMAL_NO_LIMIT>;
+				};
+			};
 		};
 
 		gpu-thermal {
