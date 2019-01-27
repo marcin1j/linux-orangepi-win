@@ -85,6 +85,25 @@
 		gpio = <&r_pio 0 5 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		heartbeat {
+			label = "pine-h64:green:heartbeat";
+			gpios = <&r_pio 0 4 GPIO_ACTIVE_HIGH>; /* PL4 */
+		};
+
+		link {
+			label = "pine-h64:white:link";
+			gpios = <&r_pio 0 3 GPIO_ACTIVE_HIGH>; /* PL3 */
+		};
+
+		status {
+			label = "pine-h64:blue:status";
+			gpios = <&r_pio 0 7 GPIO_ACTIVE_HIGH>; /* PL7 */
+		};
+	};
 };
 
 &cpu0 {
@@ -101,6 +120,10 @@
 
 &ehci3 {
 	status = "okay";
+};
+
+&cpu0 {
+	cpu-supply = <&reg_dcdca>;
 };
 
 &mmc0 {
