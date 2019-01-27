@@ -87,6 +87,10 @@
 	};
 };
 
+&cpu0 {
+	cpu-supply = <&reg_dcdca>;
+};
+
 &dwc3 {
 	status = "okay";
 };
