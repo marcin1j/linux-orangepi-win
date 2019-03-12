@@ -485,6 +485,12 @@ static int sun4i_usb_phy_set_mode(struct phy *_phy,
 	struct sun4i_usb_phy_data *data = to_sun4i_usb_phy_data(phy);
 	int new_mode;
 
+	if (mode == PHY_MODE_USB_HOST_SS) {
+		/* Workaround failed proble introduced by b97a3134 */
+		dev_warn(&_phy->dev, "Ignoring PHY_MODE_USB_HOST_SS from usb_add_hcd()");
+		return 0;
+	}
+
 	if (phy->index != 0)
 		return -EINVAL;
 
