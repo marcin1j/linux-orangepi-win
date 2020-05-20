@@ -36,6 +36,7 @@ enum cedrus_codec {
 	CEDRUS_CODEC_MPEG2,
 	CEDRUS_CODEC_H264,
 	CEDRUS_CODEC_H265,
+	CEDRUS_CODEC_VP8,
 	CEDRUS_CODEC_LAST,
 };
 
@@ -78,6 +79,10 @@ struct cedrus_h265_run {
 	const struct v4l2_ctrl_hevc_scaling_matrix	*scaling_matrix;
 };
 
+struct cedrus_vp8_run {
+	const struct v4l2_ctrl_vp8_frame_header		*slice_params;
+};
+
 struct cedrus_run {
 	struct vb2_v4l2_buffer	*src;
 	struct vb2_v4l2_buffer	*dst;
@@ -86,6 +91,7 @@ struct cedrus_run {
 		struct cedrus_h264_run	h264;
 		struct cedrus_mpeg2_run	mpeg2;
 		struct cedrus_h265_run	h265;
+		struct cedrus_vp8_run	vp8;
 	};
 };
 
@@ -143,6 +149,14 @@ struct cedrus_ctx {
 			void		*entry_points_buf;
 			dma_addr_t	entry_points_buf_addr;
 		} h265;
+		struct {
+			unsigned int	last_frame_p_type;
+			unsigned int	last_filter_type;
+			unsigned int	last_sharpness_level;
+
+			u8		*entropy_probs_buf;
+			dma_addr_t	entropy_probs_buf_dma;
+		} vp8;
 	} codec;
 };
 
@@ -190,6 +204,7 @@ struct cedrus_dev {
 extern struct cedrus_dec_ops cedrus_dec_ops_mpeg2;
 extern struct cedrus_dec_ops cedrus_dec_ops_h264;
 extern struct cedrus_dec_ops cedrus_dec_ops_h265;
+extern struct cedrus_dec_ops cedrus_dec_ops_vp8;
 
 static inline void cedrus_write(struct cedrus_dev *dev, u32 reg, u32 val)
 {
