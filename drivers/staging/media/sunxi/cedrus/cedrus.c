@@ -28,6 +28,50 @@
 #include "cedrus_dec.h"
 #include "cedrus_hw.h"
 
+static int cedrus_try_ctrl(struct v4l2_ctrl *ctrl)
+{
+	if (ctrl->id == V4L2_CID_MPEG_VIDEO_H264_SPS) {
+		const struct v4l2_ctrl_h264_sps *sps = ctrl->p_new.p_h264_sps;
+
+		if (sps->chroma_format_idc != 1)
+			/* Only 4:2:0 is supported */
+			return -EINVAL;
+		if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
+			/* Luma and chroma bit depth mismatch */
+			return -EINVAL;
+		if (sps->bit_depth_luma_minus8 != 0)
+			/* Only 8-bit is supported */
+			return -EINVAL;
+	} else if (ctrl->id == V4L2_CID_MPEG_VIDEO_HEVC_SPS) {
+		const struct v4l2_ctrl_hevc_sps *sps = ctrl->p_new.p_hevc_sps;
+		struct cedrus_ctx *ctx = container_of(ctrl->handler, struct cedrus_ctx, hdl);
+
+		if (sps->chroma_format_idc != 1)
+			/* Only 4:2:0 is supported */
+			return -EINVAL;
+
+		if (sps->bit_depth_luma_minus8 != sps->bit_depth_chroma_minus8)
+			/* Luma and chroma bit depth mismatch */
+			return -EINVAL;
+
+		if (ctx->dev->capabilities & CEDRUS_CAPABILITY_H265_10_DEC) {
+			if (sps->bit_depth_luma_minus8 != 0 && sps->bit_depth_luma_minus8 != 2)
+				/* Only 8-bit and 10-bit are supported */
+				return -EINVAL;
+		} else {
+			if (sps->bit_depth_luma_minus8 != 0)
+				/* Only 8-bit is supported */
+				return -EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static const struct v4l2_ctrl_ops cedrus_ctrl_ops = {
+	.try_ctrl = cedrus_try_ctrl,
+};
+
 static const struct cedrus_control cedrus_controls[] = {
 	{
 		.cfg = {
@@ -60,6 +104,7 @@ static const struct cedrus_control cedrus_controls[] = {
 	{
 		.cfg = {
 			.id	= V4L2_CID_MPEG_VIDEO_H264_SPS,
+			.ops	= &cedrus_ctrl_ops,
 		},
 		.codec		= CEDRUS_CODEC_H264,
 		.required	= true,
@@ -106,6 +151,7 @@ static const struct cedrus_control cedrus_controls[] = {
 	{
 		.cfg = {
 			.id	= V4L2_CID_MPEG_VIDEO_HEVC_SPS,
+			.ops	= &cedrus_ctrl_ops,
 		},
 		.codec		= CEDRUS_CODEC_H265,
 		.required	= true,
@@ -538,7 +584,8 @@ static const struct cedrus_variant sun50i_h5_cedrus_variant = {
 
 static const struct cedrus_variant sun50i_h6_cedrus_variant = {
 	.capabilities	= CEDRUS_CAPABILITY_UNTILED |
-			  CEDRUS_CAPABILITY_H265_DEC,
+			  CEDRUS_CAPABILITY_H265_DEC |
+			  CEDRUS_CAPABILITY_H265_10_DEC,
 	.quirks		= CEDRUS_QUIRK_NO_DMA_OFFSET,
 	.mod_rate	= 600000000,
 };
